@@ -127,7 +127,16 @@ void demender_placement(t_grille & grille_placement, int taille_bat)
     cout<<"     <b> vers le bas"<<endl;
     cout<<"     <g> vers le gauche"<<endl;
     cout<<"     <d> vers le droite"<<endl;
+  
+    do 
+    {
+      
+      cin>>sens;
+      
+    }while(sens!= h || sens!= b || sens!= g || sens!= d )
 
+      
+      
    // pas fini
 }
 
