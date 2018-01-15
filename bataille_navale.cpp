@@ -39,9 +39,19 @@ typedef struct  {
 /* d�clarez ici les sous-programmes */
 
 
-int menu (int & chx)
+char menu ();
 {
-    //aff le menu et envoyer le choix
+     char chx;
+
+    cout<<"     Bataille navale "<<endl;
+    cout<<"menu:"<<endl;
+    cout<<" <p>jouer en pvp"<<endl;
+    cout<<" <q>quitter"<<endl;
+    cout<<"que voulez vous faire ?"<<endl;
+    cin>>chx;
+
+
+    return(chx);
 }
 
 void nom_joueur(t_chaine & nom_joueur)
@@ -54,7 +64,18 @@ void nom_joueur(t_chaine & nom_joueur)
 
 void initgrille(t_grille & grille)
 {
-    //mettre le grille a espace
+   int cptl , cptc;
+    
+    
+    
+    for(cptl = 0 ; cptl < MAXPLT ;cptl++)
+    {
+        for(cptc = 0 ; cptc < MAXPLT ; cptc++)
+        {
+         grille[cptl][cptc]=' ';
+        }
+            
+    }
 }
 
 
