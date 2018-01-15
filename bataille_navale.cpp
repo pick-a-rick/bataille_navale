@@ -19,6 +19,7 @@ using namespace std;		// permet d'utiliser les flux cin et cout
 /* d�clarez ici les constantes */
 const int MAXPLT = 10;
 const int MAXCH = 30;
+const int NBBAT = 5;
 // ================================== Types ================================= //
 /* d�clarez ici les nouveaux types */
 
@@ -27,13 +28,17 @@ typedef char t_grille[MAXPLT][MAXPLT];
 typedef char t_chaine[MAXCH];
 
 typedef struct  {
-                    int vie ;
+                    int vie;
                     int lig ;
                     int col ;
-                    int sens ;
-                    int lng ;
+                    int sens;
+                    int lng;
 
                 }t_bat;
+
+typedef t_bat t_flote [NBBAT];
+
+
 
 // ============================ Sous programmes ============================= //
 /* d�clarez ici les sous-programmes */
@@ -94,15 +99,40 @@ void aff_grille(t_grille & grille)
     {
       cout<<grille[i][j];
       cout<<" ";
-    };
+    }
     cout<<endl;
   }
 }
 
-void demender_placement(t_grille & grille_placement, int taille_bat)
+void demender_placement(t_grille & grille_placement , t_bat & bateau , int taille_bat)
 {
-    char lettre_col,sens ;
-    int col , lig ;
+    char lettre_col,sens,cara;
+    int col , lig ,cpt ;
+    bool validsens ;
+
+      bateau.vie= taille_bat;
+      bateau.lng = taille_bat;
+      switch(taille_bat)
+      {
+          case'5':
+              cara = 'p';
+              break;
+
+          case'4':
+              cara = 'c';
+              break;
+          case'3':
+              cara = 's';
+              break;
+
+          case'2':
+              cara = 't';
+              break;
+
+          default :
+              cara = ' ';
+                ;
+      }
 
 
     cout<<"placement du bateau de "<<taille_bat<<" case"<<endl;
@@ -115,7 +145,7 @@ void demender_placement(t_grille & grille_placement, int taille_bat)
     }while (lettre_col < 65 || lettre_col > 74);
 
     col = lettre_col - 65 ;  // A = 65(ascii dec)  J= 74 (ascii dec)
-
+    bateau.col = col;
 
 
     cout<<"ligne (nombre de 1 a 10):"<<endl;
@@ -126,6 +156,9 @@ void demender_placement(t_grille & grille_placement, int taille_bat)
     }while (lig < 0 || lig > 10);
 
     lig = lig + 1 ;  // A = 65(ascii dec)  J= 74 (ascii dec)
+    bateau.lig = lig ;
+
+
 
     cout<<"dans quel sens voulez vous le mettre ?"<<endl;
     cout<<"     <h> vers le haut"<<endl;
@@ -138,29 +171,148 @@ void demender_placement(t_grille & grille_placement, int taille_bat)
 
       cin>>sens;
 
-    }while(sens!= 'h' || sens!= 'b' || sens!= 'g' || sens!= 'd' );
+          switch (sens)
+          {
+              case 'h':
+
+                      if(lig - taille_bat < 0)
+                        {
+                        validsens = false ;
+                        }
+                      else
+                        {
+                        validsens = true ;
+                        }
 
 
+                      break;
+
+              case 'b':
+
+                      if(lig + taille_bat > 9)
+                          {
+                          validsens = false ;
+                          }
+                        else
+                          {
+                            validsens = true ;
+                          }
+
+                        break;
+
+              case 'g':
+
+                      if(col - taille_bat < 0)
+                          {
+                            validsens = false ;
+                          }
+                          else
+                          {
+                              validsens = true ;
+                            }
+
+                      break;
+
+              case 'd' :
+
+                      if(col + taille_bat > 9)
+                          {
+                            validsens = false ;
+                          }
+                          else
+                          {
+                            validsens = true ;
+                          }
+                      break;
+
+              default :
+
+                        validsens = false ;
+
+          }
+
+    }while(validsens== false);
+
+    bateau.sens = sens;
+
+
+
+    switch (sens)
+    {
+        case 'h' :
+
+
+
+              for(cpt = lig ; cpt>(lig-taille_bat) ; cpt --)
+                  {
+                    grille_placement[cpt][col]=cara;
+
+                  }
+
+                  break;
+
+        case 'b':
+
+              for(cpt = lig ; cpt<(lig+taille_bat) ; cpt ++)
+                  {
+                    grille_placement[cpt][col]=cara;
+
+                  }
+
+                break;
+
+      case 'g':
+
+            for(cpt = col; cpt>(col-taille_bat) ; cpt --)
+              {
+                grille_placement[lig][cpt]=cara;
+
+              }
+
+              break;
+
+      case'd':
+
+          for(cpt = col; cpt<(col+taille_bat) ; cpt ++)
+              {
+                grille_placement[lig][cpt]=cara;
+
+              }
+
+              break;
+
+      default:
+              ;
+
+
+      }
 
    // pas fini
 }
 
-void placement_bateaux(t_grille & grille_placement)
+void placement_bateaux(t_grille & grille_placement , t_flote & flote )
 {
 
+    t_bat pa5 , cr4 , ct3 , sm3 , tr2 ;
+
+
     aff_grille(grille_placement);
-    demender_placement(grille_placement , 5);
+    demender_placement(grille_placement , pa5 , 5);
+    flote[0]=pa5;
     aff_grille(grille_placement);
-    demender_placement(grille_placement , 4);
+    demender_placement(grille_placement , cr4 , 4);
+    flote[1]=cr4;
     aff_grille(grille_placement);
-    demender_placement(grille_placement , 3);
+    demender_placement(grille_placement , ct3 , 3);
+    flote[2]=ct3;
     aff_grille(grille_placement);
-    demender_placement(grille_placement , 3);
+    demender_placement(grille_placement , sm3 , 3);
+    flote[3]=sm3;
     aff_grille(grille_placement);
-    demender_placement(grille_placement , 2);
+    demender_placement(grille_placement , tr2 , 2);
+    flote[4]=tr2;
     aff_grille(grille_placement);
 }
-
 
 
 void tir( t_grille & grille_tir , t_grille & grille_placement ,bool & resultat)
@@ -205,7 +357,7 @@ void tour (t_chaine joueur_1 , t_chaine joueur_2)
 // ========================== Programme principal =========================== //
 int main(void)
 {
-
+/*
    // D�clarations locales
 char choix;
 t_chaine joueur_1;
@@ -229,7 +381,15 @@ switch (choix)
   aff_grille(grille_placement_1);
 
   break;
-}
+}*/
+t_grille grille;
+
+initgrille(grille);
+aff_grille(grille);
+
+
+
+
    setlocale(LC_ALL, "french");
 
    // retour au syst�me d'exploitattion
