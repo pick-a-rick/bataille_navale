@@ -114,18 +114,18 @@ void demender_placement(t_grille & grille_placement , t_bat & bateau , int taill
       bateau.lng = taille_bat;
       switch(taille_bat)
       {
-          case'5':
+          case 5 :
               cara = 'p';
               break;
 
-          case'4':
+          case 4:
               cara = 'c';
               break;
-          case'3':
+          case 3 :
               cara = 's';
               break;
 
-          case'2':
+          case 2:
               cara = 't';
               break;
 
@@ -137,9 +137,10 @@ void demender_placement(t_grille & grille_placement , t_bat & bateau , int taill
 
     cout<<"placement du bateau de "<<taille_bat<<" case"<<endl;
     cout<<"entrez une case"<<endl;
-    cout<<"colone (lettre en majuscule):"<<endl;
+
     do
     {
+      cout<<"colone (lettre en majuscule):"<<endl;
         cin>>lettre_col;
 
     }while (lettre_col < 65 || lettre_col > 74);
@@ -148,26 +149,28 @@ void demender_placement(t_grille & grille_placement , t_bat & bateau , int taill
     bateau.col = col;
 
 
-    cout<<"ligne (nombre de 1 a 10):"<<endl;
+
     do
     {
+       cout<<"ligne (nombre de 1 a 10):"<<endl;
         cin>>lig;
 
-    }while (lig < 0 || lig > 10);
+    }while (lig < 1|| lig > 10);
 
-    lig = lig + 1 ;  // A = 65(ascii dec)  J= 74 (ascii dec)
+    lig = lig - 1 ;  // A = 65(ascii dec)  J= 74 (ascii dec)
     bateau.lig = lig ;
 
 
 
-    cout<<"dans quel sens voulez vous le mettre ?"<<endl;
-    cout<<"     <h> vers le haut"<<endl;
-    cout<<"     <b> vers le bas"<<endl;
-    cout<<"     <g> vers le gauche"<<endl;
-    cout<<"     <d> vers le droite"<<endl;
+
 
     do
     {
+      cout<<"dans quel sens voulez vous le mettre ?"<<endl;
+      cout<<"     <h> vers le haut"<<endl;
+      cout<<"     <b> vers le bas"<<endl;
+      cout<<"     <g> vers le gauche"<<endl;
+      cout<<"     <d> vers le droite"<<endl;
 
       cin>>sens;
 
@@ -317,11 +320,54 @@ void placement_bateaux(t_grille & grille_placement , t_flote & flote )
 
 void tir( t_grille & grille_tir , t_grille & grille_placement ,bool & resultat)
 {
+    int lig ,col ;
+    char lettre_col;
 
+      aff_grille(grille_tir);
+      do
+      {
+        cout<<"colone (lettre en majuscule):"<<endl;
+          cin>>lettre_col;
+
+      }while (lettre_col < 65 || lettre_col > 74);
+
+      col = lettre_col - 65 ;  // A = 65(ascii dec)  J= 74 (ascii dec)
+
+
+
+      do
+      {
+         cout<<"ligne (nombre de 1 a 10):"<<endl;
+          cin>>lig;
+
+      }while (lig < 1|| lig > 10);
+
+      lig = lig - 1 ;  // A = 65(ascii dec)  J= 74 (ascii dec)
+
+      if( grille_placement[lig][col]=='p'|| grille_placement[lig][col]=='c'|| grille_placement[lig][col]=='s'|| grille_placement[lig][col]=='t')
+      {
+        grille_tir[lig][col] = '*' ;
+        cout<<"touché"<<endl;
+        resultat = true ;
+      }
+      else
+      {
+        grille_tir[lig][col] = '0';
+        cout<<"raté"<<endl;
+        resultat = false ;
+      }
 }
 
-void qgagnant ( bool & resultat , int & joueur , int & score )
+void qgagnant ( bool  & qwin , int & joueur , int & hpj ,t_flote flote )
 {
+    int cpt;
+
+    hpj = 0 ;
+
+    for(cpt = 0 ; cpt < NBBAT ; cpt++)
+        {
+          hpj = hpj + flote[cpt].vie ;
+        }
 
 }
 
@@ -338,7 +384,7 @@ void tour (t_chaine joueur_1 , t_chaine joueur_2)
           cout<<" Au tour de "<<joueur_1<<endl;
           aff_grille(grille);
           tir(grille_tir_1 , grille_placement_1 , resultat);
-          qgagnant ( resultat , joueur , score );
+          //refaire qgagnant
           joueur++;
         }
 
@@ -347,7 +393,7 @@ void tour (t_chaine joueur_1 , t_chaine joueur_2)
           cout<<" Au tour de "<<joueur_2 <<endl;
           aff_grille(grille);
           tir(grille_tir_2 , grille_placement_2 , resultat);
-          qgagnant ( resultat , joueur , score );
+          //refaire qgagnant
           joueur--;
         }
 
