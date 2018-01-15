@@ -27,10 +27,11 @@ typedef char t_grille[MAXPLT][MAXPLT];
 typedef char t_chaine[MAXCH];
 
 typedef struct  {
-                    int vie;
-                    int x ;
-                    int y ;
-                    int lng;
+                    int vie ;
+                    int lig ;
+                    int col ;
+                    int sens ;
+                    int lng ;
 
                 }t_bat;
 
@@ -72,7 +73,7 @@ void initgrille(t_grille & grille)
     {
         for(cptc = 0 ; cptc < MAXPLT ; cptc++)
         {
-         grille[cptl][cptc]=' ';
+         grille[cptl][cptc]='=';
         }
 
     }
@@ -88,10 +89,13 @@ void aff_grille(t_grille & grille)
    int i,j;
    for(i=0 ; i<MAXPLT ; i++)
    {
+     cout<<"        ";
     for(j=0 ; j<MAXPLT ; j++)
     {
       cout<<grille[i][j];
+      cout<<" ";
     };
+    cout<<endl;
   }
 }
 
@@ -169,15 +173,17 @@ void qgagnant ( bool & resultat , int & joueur , int & score )
 
 }
 
-void tour ()
+void tour (t_chaine joueur_1 , t_chaine joueur_2)
 {
   bool resultat;
   int joueur , score ;
   t_grille grille , grille_tir_1 , grille_placement_1 , grille_tir_2 , grille_placement_2;
   joueur=1;
   do {
+
     if(joueur=='1')
         {
+          cout<<" Au tour de "<<joueur_1<<endl;
           aff_grille(grille);
           tir(grille_tir_1 , grille_placement_1 , resultat);
           qgagnant ( resultat , joueur , score );
@@ -186,6 +192,7 @@ void tour ()
 
     else
         {
+          cout<<" Au tour de "<<joueur_2 <<endl;
           aff_grille(grille);
           tir(grille_tir_2 , grille_placement_2 , resultat);
           qgagnant ( resultat , joueur , score );
@@ -201,6 +208,10 @@ int main(void)
 
    // D�clarations locales
 char choix;
+t_chaine joueur_1;
+t_chaine joueur_2;
+t_grille grille_placement_1;
+
    // Actions
 
 choix= menu();
@@ -208,10 +219,19 @@ choix= menu();
 switch (choix)
 {
   case'p':
+
+  cout<<" Entrez nom du joueur 1 : ";
+  cin>>joueur_1;
+  cout<<endl<<endl<<" Entrez nom du joueur 2 : ";
+  cin>>joueur_2;
+  cout<<endl;
+  initgrille(grille_placement_1);
+  aff_grille(grille_placement_1);
+
+  break;
 }
    setlocale(LC_ALL, "french");
 
    // retour au syst�me d'exploitattion
    return 0;
 }
-// ============================ Fin du programme ==========================
