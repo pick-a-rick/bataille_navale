@@ -159,7 +159,17 @@ void qgagnant ( bool resultat , int & joueur , int & score )
 
 }
 
-
+void tour ()
+{
+  do {
+    aff_grille(t_grille & grille);
+    
+    
+    
+    
+    
+  }while(resultat != true );
+  
 
 // ========================== Programme principal =========================== //
 int main(void)
@@ -168,6 +178,7 @@ int main(void)
    // D�clarations locales
 
    // Actions
+  menu();
    setlocale(LC_ALL, "french");
 
    // retour au syst�me d'exploitattion
