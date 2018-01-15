@@ -94,17 +94,60 @@ void aff_grille(t_grille & grille)
   }
 }
 
+void demender_placement(t_grille & grille_placement, int taille_bat)
+{
+    char lettre_col;
+    int col , lig ;
 
+
+    cout<<"placement du bateau de "<<taille_bat<<" case"<<endl;
+    cout<<"entrez une case"<<endl;
+    cout<<"colone (lettre en majuscule):"<<endl;
+    do
+    {
+        cin>>lettre_col;
+
+    }while (lettre_col < 65 || lettre_col > 74);
+
+    col = lettre_col - 65 ;  // A = 65(ascii dec)  J= 74 (ascii dec)
+
+
+
+    cout<<"ligne (nombre de 1 a 10):"<<endl;
+    do
+    {
+        cin>>lig;
+
+    }while (lig < 0 || lig > 10);
+
+    lig = lig + 1 ;  // A = 65(ascii dec)  J= 74 (ascii dec)
+
+    cout<<"dans quel sens voulez vous le mettre ?"<<endl;
+    cout<<"     <h> vers le haut"<<endl;
+    cout<<"     <b> vers le bas"<<endl;
+    cout<<"     <g> vers le gauche"<<endl;
+    cout<<"     <d> vers le droite"<<endl;
+
+   // pas fini
+}
 
 void placement_bateaux(t_grille & grille_placement)
 {
 
+    aff_grille(grille_placement);
+    demender_placement(grille_placement , 5);
+    aff_grille(grille_placement);
+    demender_placement(grille_placement , 4);
+    aff_grille(grille_placement);
+    demender_placement(grille_placement , 3);
+    aff_grille(grille_placement);
+    demender_placement(grille_placement , 3);
+    aff_grille(grille_placement);
+    demender_placement(grille_placement , 2);
+    aff_grille(grille_placement);
 }
 
-void demender_placement(t_grille & grille_placement)
-{
 
-}
 
 void tir( t_grille & grille_tir , t_grille & grille_placement ,bool & resultat)
 {
@@ -131,4 +174,3 @@ int main(void)
    return 0;
 }
 // ============================ Fin du programme ==========================
-
