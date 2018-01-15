@@ -1,4 +1,3 @@
-
 //*************************************************************************** //
 //  PROGRAMME :  modele.ccp (mettre � jour ce cartouche)
 //  DATE      :
@@ -39,7 +38,7 @@ typedef struct  {
 /* d�clarez ici les sous-programmes */
 
 
-char menu ();
+char menu ()
 {
      char chx;
 
@@ -56,25 +55,25 @@ char menu ();
 
 void nom_joueur(t_chaine & nom_joueur)
 {
-    //demender le nom d'un joueur
+
     cout<<"Entrez le nom du joueur "<<endl;
-    cin>>t_chaine;
+    cin>>nom_joueur;
 
 }
 
 void initgrille(t_grille & grille)
 {
    int cptl , cptc;
-    
-    
-    
+
+
+
     for(cptl = 0 ; cptl < MAXPLT ;cptl++)
     {
         for(cptc = 0 ; cptc < MAXPLT ; cptc++)
         {
          grille[cptl][cptc]=' ';
         }
-            
+
     }
 }
 
@@ -107,12 +106,12 @@ void demender_placement(t_grille & grille_placement)
 
 }
 
-void tir( t_grille & grille_tir ; t_grille & grille_placement ; bool & resultat)
+void tir( t_grille & grille_tir , t_grille & grille_placement ,bool & resultat)
 {
 
 }
 
-void qgagnant ( bool resultat ; int & joueur ; int & score )
+void qgagnant ( bool resultat , int & joueur , int & score )
 {
 
 }
@@ -132,3 +131,4 @@ int main(void)
    return 0;
 }
 // ============================ Fin du programme ==========================
+
