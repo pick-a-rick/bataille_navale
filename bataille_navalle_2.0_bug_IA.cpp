@@ -13,6 +13,7 @@
 #include <cmath>
 #include <clocale>			// caract�res accentu�s
 #include <conio.h>
+#include <time.h>
 
 using namespace std;		// permet d'utiliser les flux cin et cout
 
@@ -340,9 +341,10 @@ void demender_placement(t_grille & grille_placement , t_bat & bateau , int taill
 
 void placement_IA_facile(t_grille & grille_placement , t_bat & bateau , int taille_bat)
 {
-    char lettre_col,sens,cara;
-    int col , lig ,cpt , validbat ;
+    char cara;
+    int col , lig ,cpt , validbat , i,sens;
     bool validsens ;
+
 
       bateau.vie= taille_bat;
       bateau.lng = taille_bat;
@@ -367,21 +369,24 @@ void placement_IA_facile(t_grille & grille_placement , t_bat & bateau , int tail
               cara = ' ';
                 ;
       }
-    do
-    {
+
         validbat = 0 ;
+            col = rand() % 10;//colonne IA
+            cout<<col<<endl;
 
-        col=rand() % 10;//colonne IA
-        bateau.col = col;
+           lig = rand() % 10;  //ligne IA
+            cout<<lig<<endl;
 
-        lig = rand() % 10;  //ligne IA
+
+        bateau.col = col ;
         bateau.lig = lig ;
-
-        sens=rand() % 4;
-
+        do
+        {
+          sens= rand() % 4;
+          cout<<sens;
           switch (sens)
           {
-              case '0':
+              case 0:
                       if ( (lig - taille_bat +1 )<  0)
                         {
                         validsens = false ;
@@ -393,12 +398,13 @@ void placement_IA_facile(t_grille & grille_placement , t_bat & bateau , int tail
                                 if(grille_placement[cpt][col] == '~')
                                   {
                                     validbat++ ;
+                                    validsens = true;
                                   }
                             }
                         }
                       break;
 
-                case '1':
+              case 1:
 
                       if(lig + taille_bat -1 > 9)
                             {
@@ -411,14 +417,14 @@ void placement_IA_facile(t_grille & grille_placement , t_bat & bateau , int tail
                                    if(grille_placement[cpt][col] == '~')
                                     {
                                     validbat++ ;
+                                    validsens = true;
                                     }
-
                                 }
                           }
 
                         break;
 
-              case '2':
+              case 2:
 
                       if(col - taille_bat +1 < 0)
                           {
@@ -431,14 +437,14 @@ void placement_IA_facile(t_grille & grille_placement , t_bat & bateau , int tail
                                          if(grille_placement[lig][cpt] == '~')
                                             {
                                                 validbat++ ;
-
+                                                validsens = true;
                                             }
                                     }
                             }
 
                       break;
 
-              case '3' :
+              case 3 :
 
                       if(col + taille_bat -1 > 9)
                           {
@@ -451,28 +457,24 @@ void placement_IA_facile(t_grille & grille_placement , t_bat & bateau , int tail
                                      if(grille_placement[lig][cpt] == '~')
                                         {
                                         validbat++ ;
+                                        validsens = true;
                                         }
-
                                 }
                           }
                       break;
 
-              default :
+            default:
 
-                        validsens = false ;
-
+            validsens = false ;
           }
 
     }while(validsens== false && validbat != taille_bat );
 
-    bateau.sens = sens;
+      bateau.sens = sens;
 
     switch (sens)
     {
-        case '0' :
-
-
-
+        case 0 :
               for(cpt = lig ; cpt>(lig-taille_bat) ; cpt --)
                   {
                     grille_placement[cpt][col]=cara;
@@ -481,7 +483,7 @@ void placement_IA_facile(t_grille & grille_placement , t_bat & bateau , int tail
 
                   break;
 
-        case '1':
+        case 1:
 
               for(cpt = lig ; cpt<(lig+taille_bat) ; cpt ++)
                   {
@@ -491,7 +493,7 @@ void placement_IA_facile(t_grille & grille_placement , t_bat & bateau , int tail
 
                 break;
 
-      case '2':
+        case 2:
 
             for(cpt = col; cpt>(col-taille_bat) ; cpt --)
               {
@@ -501,7 +503,7 @@ void placement_IA_facile(t_grille & grille_placement , t_bat & bateau , int tail
 
               break;
 
-      case'3':
+        case 3:
 
           for(cpt = col; cpt<(col+taille_bat) ; cpt ++)
               {
@@ -510,9 +512,6 @@ void placement_IA_facile(t_grille & grille_placement , t_bat & bateau , int tail
               }
 
               break;
-
-      default:
-              ;
 
       }
 }
@@ -543,7 +542,7 @@ void placement_bateaux(t_grille & grille_placement , t_flote & flote )
 
 void placement_bateaux_IA(t_grille & grille_placement , t_flote & flote)
 {
-        t_bat pa5 , cr4 , ct3 , sm3 , tr2 ;
+      t_bat pa5 , cr4 , ct3 , sm3 , tr2 ;
 
       placement_IA_facile(grille_placement , pa5 , 5);
       flote[0]=pa5;
@@ -665,8 +664,6 @@ void tir_ia_facile (t_grille & grille_tir , t_grille & grille_placement ,bool & 
 
       lig = rand() % MAXPLT ;
       col = rand() % MAXPLT ;
-        cout << "lig :"<<lig<<endl;
-        cout << "col :"<<col<<endl;
 
     }while( grille_tir[lig][col]== '*' || grille_tir[lig][col]=='0' );
 
@@ -702,13 +699,14 @@ void tour_IA (t_chaine & joueur_1 , t_chaine &joueur_2 , t_grille& grille_placem
 
     if(joueur== 1)
         {
-          cout<<" Au tour de "<<joueur_1<<endl;
+
+          cout<<" A ton tour "<<endl;
           aff_grille(grille_placement_1);
           cout<<endl<<" Grille de tir "<<endl;
           tir(grille_tir_1 , grille_placement_2 , resultat);
           if(resultat == true)score1++;
           joueur++;
-          cout<<endl<<" Au tour du joueur 2 , appuyer sur c pour continuer "<< endl;
+          cout<<endl<<" Au tour de l'ordinateur , appuyer sur c pour continuer "<< endl;
           cin>>c;
           if(c == 'c')system("cls" );
 
@@ -730,6 +728,15 @@ void tour_IA (t_chaine & joueur_1 , t_chaine &joueur_2 , t_grille& grille_placem
 int main(void)
 {
 
+
+
+
+
+
+
+
+
+/*
    // D�clarations locales
 char choix,chox,q;
 t_chaine joueur_1;
@@ -741,6 +748,10 @@ t_flote flote_2;
 int jwin,nbj;
 nbj=1;
    // Actions
+
+
+srand(time(NULL));
+
 do{
 choix= menu();
 
@@ -775,14 +786,14 @@ switch (choix)
       case'1':
       nom_joueur(joueur_1,nbj);
       system("cls" );
+      initgrille(grille_placement_2);
+      placement_bateaux_IA(grille_placement_2,flote_2);
       cout<<" Placement des bateaux de "<<joueur_1<<endl;
       initgrille(grille_placement_1);
       placement_bateaux(grille_placement_1,flote_1);
       system("cls" );
-      initgrille(grille_placement_2);
-      placement_bateaux_IA(grille_placement_2,flote_2);
-      cout<<endl<<endl;
-      tour(joueur_1 , joueur_2 , grille_placement_1,grille_placement_2, jwin);
+      aff_grille(grille_placement_2);
+      tour_IA(joueur_1 , joueur_2 , grille_placement_1,grille_placement_2, jwin);
       if(jwin== 1){cout<<" "<<joueur_1<<" a gagne !! "<<endl;}
       if(jwin== 2){cout<<" YOU LOOSE !!! "<<endl;}
       break;
@@ -794,6 +805,10 @@ cout<<" Voulez vous rejouer ? Si non , tapez q"<<endl;
 cin>>q;
 }
 }while(q != 'q');
+
+*/
+
+
    setlocale(LC_ALL, "french");
 
    // retour au syst�me d'exploitattion
