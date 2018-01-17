@@ -706,8 +706,6 @@ void tir_ia(t_grille & grille_tir , t_grille & grille_placement ,bool & resultat
       i=-1;
       j=-1;
 
-      cout<<" difficulte = "<<alea<<"    pourcent = "<<pourcent<<" % ."<<endl;
-
       do{
           i++;
           j++;
@@ -728,7 +726,6 @@ void tir_ia(t_grille & grille_tir , t_grille & grille_placement ,bool & resultat
         cout<<"raté"<<endl;
         resultat = false ;
       }
-      cout<<"je marche"<<endl;
     }
 
 void tour (t_chaine & joueur_1 , t_chaine &joueur_2 , t_grille& grille_placement_1, t_grille &grille_placement_2, int & jwin)
@@ -1018,6 +1015,20 @@ void case_o(int & difficulte,t_chaine & joueur_1, int & nbj , t_grille & grille_
   if(jwin== 1){cout<<" "<<joueur_1<<" a gagne !! "<<endl;}
   if(jwin== 2){cout<<" YOU LOOSE !!! "<<endl;}
 }
+
+void case_m(t_mer & mer_tir , t_mer & mer_placement )
+{
+  int cbj;
+  initmer(mer_tir);
+  initmer(mer_placement);
+  cout<<"combien de joueurs ?"<<endl;
+  cin>>cbj;
+  placement_multi(mer_placement , cbj);
+  partiemulti(mer_tir , mer_placement ,cbj);
+}
+
+
+
 // ========================== Programme principal =========================== //
 int main(void)
 {
@@ -1050,15 +1061,9 @@ switch (choix)
       break;
 
   case'm' :
-      initmer(mer_tir);
-      initmer(mer_placement);
-      cout<<"combien de joueurs ?"<<endl;
-      cin>>cbj;
-      placement_multi(mer_placement , cbj);
-      partiemulti(mer_tir , mer_placement ,cbj);
+      case_m(mer_tir ,mer_placement );
       break;
   }
-
     cout<<" Voulez vous rejouer ? Si non , tapez q"<<endl;
     cin>>q;
 }while(q != 'q');
