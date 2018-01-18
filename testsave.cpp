@@ -76,11 +76,27 @@ typedef t_bat t_flote [NBBAT];
 
 
 
+void savegrille(t_grille & grille)
+{
+  int i,j;
+
+
+  for(i=0 ; i<MAXPLT ; i++)
+  {
+
+   for(j=0 ; j<MAXPLT ; j++)
+   {
+     save<<" ";
+     save<<grille[i][j];
+   };
+   save<<endl;
+ }
+
+}
 
 
 
-/* d�clarez ici les sous-programmes */
-void Color(int couleurDuTexte,int couleurDeFond) // fonction d'affichage de couleurs
+void Color(int couleurDuTexte,int couleurDeFond)
 {
 HANDLE H=GetStdHandle(STD_OUTPUT_HANDLE);
 SetConsoleTextAttribute(H,couleurDeFond*16+couleurDuTexte);
@@ -158,7 +174,7 @@ void aff_grille(t_grille & grille)
 {
    //aff la grille
    int i,j;
-   int k;
+  // int k;
    cout<<"__________________________________________________"<<endl;
    cout<<"         | A | B | C | D | E | F | G | H | I | J |"<<endl;
    for(i=0 ; i<MAXPLT ; i++)
@@ -177,6 +193,22 @@ void aff_grille(t_grille & grille)
   }
   cout<<"___________________________________________________"<<endl<<endl<<endl;
 }
+
+void savenomjoueur (t_chaine chaine )
+{
+    int cpt;
+
+
+
+        for(cpt = 0 ; cpt < MAXCH ; cpt++)
+        {
+            save<<chaine[cpt] ;
+        }
+        save<<endl;
+
+}
+
+
 
 void demender_placement(t_grille & grille_placement , t_bat & bateau , int taille_bat)
 {
@@ -758,14 +790,36 @@ void tir_ia(t_grille & grille_tir , t_grille & grille_placement ,bool & resultat
       }
     }
 
-void tour (t_chaine & joueur_1 , t_chaine &joueur_2 , t_grille& grille_placement_1, t_grille &grille_placement_2, int & jwin)
+
+/*void liresavegrille (t_grille & grille)
+{
+
+    for(cptlig = 0 ; cptlig < MAXPLT ; cptlig ++ )
+    {
+        for(cptcol = 0 ; cptcol < MAXPLT ; cptcol ++)
+        {
+
+        }
+    }
+}
+*/
+void tour (t_chaine & joueur_1 , t_chaine &joueur_2 , t_grille& grille_placement_1, t_grille &grille_placement_2, int & jwin , char qsave )
 {
   char c;
   bool resultat, fin;
   int joueur , score1 , score2 ;
   t_grille grille_tir_1  , grille_tir_2;
-  initgrille(grille_tir_1);
-  initgrille(grille_tir_2);
+
+  if(qsave == 'n')
+    {
+        initgrille(grille_tir_1);
+        initgrille(grille_tir_2);
+    }
+    else
+    {
+
+    }
+
   joueur = 1;
   fin    = false;
 
@@ -783,7 +837,7 @@ void tour (t_chaine & joueur_1 , t_chaine &joueur_2 , t_grille& grille_placement
           cin>>c;
           if(c == 'c')system("cls" );
 
-          save.close("save.txt");
+          save.close();
           save.open("save.txt");
           save<<"p"<<endl;
           save<<joueur_1<<endl;
@@ -815,16 +869,16 @@ void tour (t_chaine & joueur_1 , t_chaine &joueur_2 , t_grille& grille_placement
           if(c == 'c')system("cls" );
 
 
-          save.close("save.txt");
+          save.close();
           save.open("save.txt");
           save<<"p"<<endl;
           save<<joueur_1<<endl;
           save<<joueur_2<<endl;
-          savegrille(grillle_tir_1);
+          savegrille(grille_tir_1);
           save<<joueur_1<<endl;
           savegrille(grille_placement_1);
           save<<joueur_1<<endl;
-          savegrille(grillle_tir_2);
+          savegrille(grille_tir_2);
           save<<joueur_2<<endl;
           savegrille(grille_placement_2);
           save<<joueur_2<<endl;
@@ -877,20 +931,30 @@ void choix_diff (int & difficulte)
 void tour_IA (t_chaine & joueur_1 , t_grille& grille_placement_1, t_grille &grille_placement_2, int & jwin, int difficulte)
 {
   char c;
+  t_chaine joueur_2;
   bool resultat, fin ;
-  int joueur , score1 , score2 , lig , col ;
+  int joueur , score1 , score2  ,cpt,nbj;
   t_grille grille_tir_1  , grille_tir_2;
   initgrille(grille_tir_1);
   initgrille(grille_tir_2);
   joueur = 1;
   fin    = false;
 
+  for(cpt = 0 ; cpt < MAXCH; cpt++)
+    {
+      joueur_2[cpt]='o';
+    }
+
+    nom_joueur(joueur_1,nbj);
+
+
+
   do {
 
     if(joueur== 1)
         {
 
-          cout<<" A ton tour "<<endl;
+          cout<<" Au tour de "<<joueur_1<<endl;
           aff_grille(grille_placement_1);
           cout<<endl<<" Grille de tir "<<endl;
           tir(grille_tir_1 , grille_placement_2 , resultat);
@@ -900,9 +964,9 @@ void tour_IA (t_chaine & joueur_1 , t_grille& grille_placement_1, t_grille &gril
           c= getch();
           system("cls" );
 
-          save.close("save.txt");
+          save.close();
           save.open("save.txt");
-          save<<"p"<<endl;
+          save<<"o"<<difficulte<<endl;
           save<<joueur_1<<endl;
           save<<joueur_2<<endl;
           savegrille(grille_tir_1);
@@ -924,16 +988,16 @@ void tour_IA (t_chaine & joueur_1 , t_grille& grille_placement_1, t_grille &gril
             joueur--;
 
 
-            save.close("save.txt");
+            save.close();
             save.open("save.txt");
-            save<<"p"<<endl;
+            save<<"o"<<difficulte<<endl;
             save<<joueur_1<<endl;
             save<<joueur_2<<endl;
-            savegrille(grillle_tir_1);
+            savegrille(grille_tir_1);
             save<<joueur_1<<endl;
             savegrille(grille_placement_1);
             save<<joueur_1<<endl;
-            savegrille(grillle_tir_2);
+            savegrille(grille_tir_2);
             save<<joueur_2<<endl;
             savegrille(grille_placement_2);
             save<<joueur_2<<endl;
@@ -993,8 +1057,8 @@ void initvie(t_vie & vie)
 
 void tirmulti (t_mer & mer_tir, t_mer & mer_pl ,int & cible , int n0joueur ,int nb_joueurs)
 {
-   int  lig , col , var;
-   char col_lettre ;
+   int   var;
+   //char col_lettre ;
    bool resultat ;
 
    t_grille grilleplcible , grilletircible;
@@ -1073,12 +1137,24 @@ void partiemulti(t_mer & mer_tir , t_mer & mer_placement ,int nbj)
 
     }
 
-void case_p(t_chaine & joueur_1 , t_chaine & joueur_2 , int & nbj , t_grille & grille_placement_1 , t_grille & grille_placement_2 ,int & jwin ,t_flote & flote_1 , t_flote & flote_2 )
+void case_p(t_chaine & joueur_1 , t_chaine & joueur_2 , int & nbj , t_grille & grille_placement_1 , t_grille & grille_placement_2 ,int & jwin ,t_flote & flote_1 , t_flote & flote_2 , char qsave )
 {
   char p ;
-  nom_joueur(joueur_1,nbj);
-  nom_joueur(joueur_2,nbj);
-  system("cls" );
+  if(qsave == 'n')
+    {
+     nom_joueur(joueur_1,nbj);
+     nom_joueur(joueur_2,nbj);
+    }
+    else
+    {
+
+        load.getline(joueur_1,MAXCH);
+        cout<<"j1 : "<<joueur_1<<endl;
+        load.getline(joueur_2,MAXCH);
+        cout<<"j2 : "<<joueur_2<<endl;
+    }
+
+  //system("cls" );
   cout<<" Placement des bateaux de "<<joueur_1<<endl;
   initgrille(grille_placement_1);
   cout<<"Souhaitez vous placer vos bateaux automatiquemment ?  "<<endl<<"             <o> pour oui        <n> pour non  "<<endl;
@@ -1099,7 +1175,7 @@ void case_p(t_chaine & joueur_1 , t_chaine & joueur_2 , int & nbj , t_grille & g
       case 'n':placement_bateaux(grille_placement_2,flote_2);break;
     }
     cout<<endl<<endl;
-    tour(joueur_1 , joueur_2 , grille_placement_1,grille_placement_2, jwin);
+    tour(joueur_1 , joueur_2 , grille_placement_1,grille_placement_2, jwin , qsave);
     if(jwin== 1){cout<<" "<<joueur_1<<" a gagne !! "<<endl;}
     if(jwin== 2){cout<<" "<<joueur_2<<" a gagne !! "<<endl;}
 }
@@ -1137,59 +1213,45 @@ void case_m(t_mer & mer_tir , t_mer & mer_placement )
 }
 
 
-
-void savegrille(t_grille & grille)
-{
-  int i,j;
-
-
-  for(i=0 ; i<MAXPLT ; i++)
-  {
-
-   for(j=0 ; j<MAXPLT ; j++)
-   {
-     save<<" ";
-     save<<grille[i][j];
-   };
-   save<<endl;
- }
-
-}
-
-
-
 char chargement()
 {
+    char qcharg;
+
   do{
     cout<<"reprendre la partie precedente ?"<<endl;
     cout<<" <o> oui"<<endl;
     cout<<" <n> non"<<endl;
-    cin<<chargement;
-  }while(chargement != "o" || chargement != "n");
+    cin>>qcharg;
 
-  if(chargement == "o")
-  {
-    load.open("save.txt");
-  }
-  else
-  {
-    save.open("save.txt");
-  }
 
-return(chargement);
+  }while(qcharg != 'o' && qcharg != 'n');
+
+  if(qcharg == 'o')
+    {
+        load.open("save.txt");
+
+    }
+    else
+    {
+        save.open("save.txt");
+
+
+    }
+
+return(qcharg);
 }
 
 
 void fermeture(char & chargement)
 {
 
-  if(chargement == "o")
+  if(chargement == 'o')
   {
-    load.close("save.txt");
+    load.close();
   }
   else
   {
-    save.close("save.txt");
+    save.close();
   }
 }
 
@@ -1198,8 +1260,8 @@ void fermeture(char & chargement)
 // ========================== Programme principal =========================== //
 int main(void)
 {
-char choix,chox,q,p ,sauvegarde;
-t_chaine chaine;
+char choix,q,sauvegarde;
+//t_chaine chaine;
 t_chaine joueur_1;
 t_chaine joueur_2;
 t_grille grille_placement_1;
@@ -1207,7 +1269,7 @@ t_grille grille_placement_2;
 t_flote flote_1;
 t_flote flote_2;
 t_mer mer_placement , mer_tir ;
-int jwin,nbj,cbj ,difficulte;
+int jwin,nbj ,difficulte;
 nbj=1;
    // Actions
 
@@ -1224,19 +1286,24 @@ srand(time(0));
 do{
   sauvegarde = chargement();
 
-  if(sauvegarde != "o")
+  if(sauvegarde == 'n')
     {
       choix= menu();
+    }
+    else
+    {
+        load.getline(choix,MAXCH) ;
+        cout<<choix<<endl;
     }
 
   switch (choix)
   {
     case'p':
 
-        case_p(joueur_1 , joueur_2 , nbj , grille_placement_1 ,grille_placement_2 ,jwin ,flote_1 ,flote_2 );
+        case_p(joueur_1 , joueur_2 , nbj , grille_placement_1 ,grille_placement_2 ,jwin ,flote_1 ,flote_2 , sauvegarde);
       break;
 
-  case'o':
+    case'o':
 
       case_o(difficulte , joueur_1, nbj ,  grille_placement_1 , grille_placement_2 ,flote_1 , flote_2 ,jwin);
       break;
@@ -1258,3 +1325,4 @@ do{
    // retour au syst�me d'exploitattion
    return 0;
 }
+
