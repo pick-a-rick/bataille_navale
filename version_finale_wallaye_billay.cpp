@@ -1,0 +1,1421 @@
+//*************************************************************************** //
+//  PROGRAMME :  bataille navale
+//  DATE      :
+//  OBJET     :
+//  AUTEUR(S) : thomas cdln + bubu aka le tombeur de rousses
+//***************************************************************************
+
+// ===================== Liste des fichiers d'en-t�te ======================= //
+#include <iostream>			// flux d'entr�e sortie
+#include <iomanip>			// manipulateurs de flux
+#include <cstdlib>		    // biblioth�que c standart
+#define _USE_MATH_DEFINES	// biblioth�que math�matique
+#include <cmath>
+#include <clocale>			// caract�res accentu�s
+#include <conio.h>
+#include <time.h>
+#include <windows.h>
+#include <fstream>
+
+
+using namespace std;		// permet d'utiliser les flux cin et cout
+
+
+ofstream save ;
+ifstream load ;
+
+
+
+// =============================== Constantes =============================== //
+/* d�clarez ici les constantes */
+const int MAXPLT = 10;
+const int MAXCH = 30;
+const int NBBAT = 5;
+ const int MAXJOUEUR = 8 ;
+
+
+
+
+
+
+
+
+
+// ================================== Types ================================= //
+/* d�clarez ici les nouveaux types */
+
+typedef char t_grille[MAXPLT][MAXPLT];
+
+typedef char t_chaine[MAXCH];
+
+typedef t_grille t_mer[MAXJOUEUR];
+
+typedef int t_vie[MAXJOUEUR];
+
+typedef struct  {
+                    int vie ;
+                    int lig ;
+                    int col ;
+                    int sens ;
+                    int lng ;
+
+                }t_bat;
+
+typedef t_bat t_flote [NBBAT];
+
+// variable globale
+
+
+// ============================ Sous programmes ============================= /
+
+
+
+
+void savegrille(t_grille & grille)
+{
+  int i,j;
+
+
+  for(i=0 ; i<MAXPLT ; i++)
+  {
+
+   for(j=0 ; j<MAXPLT ; j++)
+   {
+     //save<<" ";
+     save<<grille[i][j];
+     save<<endl;
+   }
+ }
+
+}
+
+HANDLE H=GetStdHandle(STD_OUTPUT_HANDLE);
+
+
+void Color(int couleurDuTexte,int couleurDeFond)
+{
+	HANDLE H=GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(H,couleurDeFond*16+couleurDuTexte);
+}
+
+char menu ()
+{
+  char chx;
+ do{
+	 system("cls");
+	 SetConsoleTextAttribute(H,15*16+0);
+    cout<<"     Bataille navale "<<endl;
+    cout<<"menu:"<<endl;
+    cout<<" <p> jouer en pvp"<<endl;
+    cout<<" <o> jouer contre l'ordinateur"<<endl;
+    cout<<" <m> jouer a plusieurs joueurs"<<endl;
+    cout<<" <q> quitter"<<endl;
+    cout<<"que voulez vous faire ?"<<endl;
+    chx=getch();
+  }while (chx !='p' && chx!='q' && chx!='o' && chx!='m');  /* code */
+
+    return(chx);
+}
+
+void sortirtab (t_mer mer , t_grille & grille , int rang)
+{
+    int cptlig , cptcol;
+
+    for(cptlig = 0 ; cptlig < MAXPLT ; cptlig ++)
+    {
+        for(cptcol = 0 ; cptcol < MAXPLT ; cptcol++)
+        {
+            grille[cptlig][cptcol] = mer[rang][cptlig][cptcol];
+        }
+    }
+
+
+}
+
+void archivertab(t_mer & mer , t_grille grille , int rang )
+{
+   int cptlig , cptcol;
+
+    for(cptlig = 0 ; cptlig < MAXPLT ; cptlig ++)
+    {
+        for(cptcol = 0 ; cptcol < MAXPLT ; cptcol++)
+        {
+             mer[rang][cptlig][cptcol]  = grille[cptlig][cptcol] ;
+        }
+    }
+}
+
+void nom_joueur(t_chaine & nom_joueur, int & nbj)
+{
+		system("cls");
+    cout<<"Entrez le nom du joueur "<<nbj<<" : ";
+    cin>>nom_joueur;
+    cout<<endl;
+    nbj++;
+		system("cls");
+}
+
+void initgrille(t_grille & grille)
+{
+   int cptl , cptc;
+
+    for(cptl = 0 ; cptl < MAXPLT ;cptl++)
+    {
+        for(cptc = 0 ; cptc < MAXPLT ; cptc++)
+        {
+         grille[cptl][cptc]='~';
+        }
+
+    }
+}
+
+void aff_grille(t_grille & grille)
+{
+   //aff la grille
+   int i,j;
+	 char cara;
+  // int k;
+   cout<<"__________________________________________________"<<endl;
+   cout<<"         | A | B | C | D | E | F | G | H | I | J |"<<endl;
+   for(i=0 ; i<MAXPLT ; i++)
+   {
+     cout<<"___________________________________________________"<<endl;
+     cout<<i+1;
+     if(i+1==10)cout<<"      ";
+     else cout<<"       ";
+    for(j=0 ; j<MAXPLT ; j++)
+    {
+      cout<<" | ";
+			cara=grille[i][j];
+			if(cara=='~')
+			{
+					SetConsoleTextAttribute(H,15*16+9);   //(H,couleurDeFond*16+couleurDuTexte)
+					cout<<grille[i][j];
+			}
+			else{
+						SetConsoleTextAttribute(H,15*16+12);   //(H,couleurDeFond*16+couleurDuTexte)
+						cout<<grille[i][j];
+				}
+					SetConsoleTextAttribute(H,15*16+0);    //(H,couleurDeFond*16+couleurDuTexte)
+		};
+    cout<<" | ";
+    cout<<endl;
+  }
+  cout<<"___________________________________________________"<<endl<<endl<<endl;
+}
+
+void savenomjoueur (t_chaine chaine )
+{
+    int cpt;
+
+
+
+        for(cpt = 0 ; cpt < MAXCH ; cpt++)
+        {
+            save<<chaine[cpt] ;
+        }
+        save<<endl;
+
+}
+
+void demender_placement(t_grille & grille_placement , t_bat & bateau , int taille_bat)
+{
+    char lettre_col,sens,cara;
+    int col , lig ,cpt , validbat ;
+    bool validsens ;
+
+      bateau.vie= taille_bat;
+      bateau.lng = taille_bat;
+      switch(taille_bat)
+      {
+          case 5:
+              cara = 'p';
+              break;
+
+          case 4 :
+              cara = 'c';
+              break;
+          case 3 :
+              cara = 's';
+              break;
+
+          case 2 :
+              cara = 't';
+              break;
+
+          default :
+              cara = ' ';
+                ;
+      }
+
+
+
+
+
+
+    do
+    {
+
+            validbat = 0 ;
+
+
+
+            cout<<"placement du bateau de "<<taille_bat<<" case"<<endl;
+            cout<<"entrez une case"<<endl;
+
+            do
+            {
+                cout<<"colone (lettre en majuscule):"<<endl;
+                cin>>lettre_col;
+
+            }while (lettre_col < 65 || lettre_col > 74);
+
+        col = lettre_col - 65 ;  // A = 65(ascii dec)  J= 74 (ascii dec)
+        bateau.col = col;
+
+
+
+        do
+            {
+            cout<<"ligne (nombre de 1 a 10):"<<endl;
+            cin>>lig;
+
+            }while (lig < 1 || lig > 10);
+
+        lig = lig - 1 ;  // A = 65(ascii dec)  J= 74 (ascii dec)
+        bateau.lig = lig ;
+
+        cout<<"dans quel sens voulez vous le mettre ?"<<endl;
+        cout<<"     <h> vers le haut"<<endl;
+        cout<<"     <b> vers le bas"<<endl;
+        cout<<"     <g> vers le gauche"<<endl;
+        cout<<"     <d> vers le droite"<<endl;
+
+        cin>>sens;
+
+          switch (sens)
+          {
+              case 'h':
+
+                      if ( (lig - taille_bat +1 )<  0)
+                        {
+                        validsens = false ;
+
+                        }
+                      else
+                        {
+                        for(cpt = lig ; cpt>(lig-taille_bat) ; cpt --)
+                            {
+                            if(grille_placement[cpt][col] == '~')
+                                {
+                                  validbat++ ;
+                                }
+
+                            }
+
+                        }
+
+                      break;
+
+              case 'b':
+
+                      if(lig + taille_bat -1 > 9)
+                            {
+                            validsens = false ;
+                            }
+                            else
+                            {
+                             for(cpt = lig ; cpt<(lig+taille_bat) ; cpt ++)
+                                {
+                                   if(grille_placement[cpt][col] == '~')
+                                    {
+                                    validbat++ ;
+                                    }
+
+                                }
+                          }
+
+                        break;
+
+              case 'g':
+
+                      if(col - taille_bat +1 < 0)
+                          {
+                            validsens = false ;
+                          }
+                          else
+                            {
+                              for(cpt = col; cpt>(col-taille_bat) ; cpt --)
+                                    {
+                                         if(grille_placement[lig][cpt] == '~')
+                                            {
+                                                validbat++ ;
+
+                                            }
+                                    }
+                            }
+
+                      break;
+
+              case 'd' :
+
+                      if(col + taille_bat -1 > 9)
+                          {
+                            validsens = false ;
+                          }
+                          else
+                          {
+                             for(cpt = col; cpt<(col+taille_bat) ; cpt ++)
+                                {
+                                     if(grille_placement[lig][cpt] == '~')
+                                        {
+                                        validbat++ ;
+                                        }
+
+                                }
+                          }
+                      break;
+
+              default :
+
+                        validsens = false ;
+
+          }
+
+
+
+        if(validsens== false && validbat != taille_bat )
+        {
+            cout<<endl;
+            cout<<"placement invalide ( chevauchement , hors grille )"<<endl;
+
+            cout<<endl;
+        }
+
+    }while(validsens== false && validbat != taille_bat );
+
+    bateau.sens = sens;
+
+
+
+    switch (sens)
+    {
+        case 'h' :
+
+
+
+              for(cpt = lig ; cpt>(lig-taille_bat) ; cpt --)
+                  {
+                    grille_placement[cpt][col]=cara;
+
+                  }
+
+                  break;
+
+        case 'b':
+
+              for(cpt = lig ; cpt<(lig+taille_bat) ; cpt ++)
+                  {
+                    grille_placement[cpt][col]=cara;
+
+                  }
+
+                break;
+
+      case 'g':
+
+            for(cpt = col; cpt>(col-taille_bat) ; cpt --)
+              {
+                grille_placement[lig][cpt]=cara;
+
+              }
+
+              break;
+
+      case'd':
+
+          for(cpt = col; cpt<(col+taille_bat) ; cpt ++)
+              {
+                grille_placement[lig][cpt]=cara;
+
+              }
+
+              break;
+
+      default:
+              ;
+
+
+      }
+
+
+}
+
+void placement_IA_facile(t_grille & grille_placement , t_bat & bateau , int taille_bat)
+{
+    char lettre_col,cara, lettre;
+    int col , lig ,cpt , validbat , sens , x;
+    bool validsens ;
+
+      bateau.vie= taille_bat;
+      bateau.lng = taille_bat;
+      switch(taille_bat)
+      {
+          case 5:
+              cara = 'p';
+              break;
+
+          case 4 :
+              cara = 'c';
+              break;
+          case 3 :
+              cara = 's';
+              break;
+
+          case 2 :
+              cara = 't';
+              break;
+
+          default :
+              cara = ' ';
+                ;
+      }
+    do
+    {
+
+            validbat = 0 ;
+
+            do
+            {
+
+                lettre_col=rand() % 74;
+
+            }while (lettre_col < 65 || lettre_col > 74);
+
+        col = lettre_col - 65 ;  // A = 65(ascii dec)  J= 74 (ascii dec)
+        bateau.col = col;
+
+
+
+        		do
+            {
+
+            lig = rand() % 10;
+
+            }while (lig < 1 || lig > 10);
+
+        lig = lig - 1 ;  // A = 65(ascii dec)  J= 74 (ascii dec)
+        bateau.lig = lig ;
+
+
+        sens = rand() % 4;
+
+          switch (sens)
+          {
+              case 0  :
+											x=0;
+											x=(lig - taille_bat +1 );
+                      if (x <  0)
+                        {
+                        validsens = false;
+
+                        }
+                      else
+                        {
+                        for(cpt = lig ; cpt>(lig-taille_bat) ; cpt --)
+                            {
+															lettre = grille_placement[cpt][col] ;
+                            if(lettre == '~')
+                                {
+                                  validbat++ ;
+																	validsens = true ;
+                                }else validsens = false;
+
+                            }
+
+                        }
+
+                      break;
+
+              case 1 :
+											x=0;
+											x=(lig + taille_bat -1);
+
+                      if(x > 9)
+                            {
+                            validsens = false ;
+                            }
+                            else
+                            {
+                             for(cpt = lig ; cpt<(lig+taille_bat) ; cpt ++)
+                                {
+																	lettre = grille_placement[cpt][col] ;
+                                   if(lettre == '~')
+                                    {
+                                    validbat++ ;
+																		validsens = true ;
+                                    }else validsens = false;
+
+                                }
+                          }
+
+                        break;
+
+              case 2 :
+											x=0;
+											x=(col - taille_bat +1);
+                      if( x < 0)
+                          {
+                            validsens = false ;
+                          }
+                          else
+                            {
+															for(cpt = col; cpt>(col-taille_bat) ; cpt --)
+                                    {
+																			lettre = grille_placement[lig][cpt] ;
+                                         if(lettre == '~')
+                                            {
+                                                validbat++ ;
+																								validsens = true ;
+
+                                            }else validsens = false;
+                                    }
+                            }
+
+                      break;
+
+              case 3 :
+											x=0;
+											x=col + taille_bat -1 ;
+                      if( x > 9)
+                          {
+                            validsens = false ;
+                          }
+                          else
+                          {
+                             for(cpt = col; cpt<(col+taille_bat) ; cpt ++)
+                                {
+																	lettre = grille_placement[lig][cpt];
+                                     if(lettre == '~')
+                                        {
+                                        validbat++ ;
+																				validsens = true ;
+                                        }else validsens = false;
+                                }
+                          }
+                      break;
+
+              default :
+
+                        validsens = false ;
+
+          }
+
+
+
+
+
+    }while(validsens== false || validbat != taille_bat );
+
+    bateau.sens = sens;
+
+
+
+    switch (sens)
+    {
+        case 0 :
+
+
+
+              for(cpt = lig ; cpt>(lig-taille_bat) ; cpt --)
+                  {
+                    grille_placement[cpt][col]=cara;
+
+                  }
+
+                  break;
+
+        case 1:
+
+              for(cpt = lig ; cpt<(lig+taille_bat) ; cpt ++)
+                  {
+                    grille_placement[cpt][col]=cara;
+
+                  }
+
+                break;
+
+      case 2:
+
+            for(cpt = col; cpt>(col-taille_bat) ; cpt --)
+              {
+                grille_placement[lig][cpt]=cara;
+
+              }
+
+              break;
+
+      case 3:
+
+          for(cpt = col; cpt<(col+taille_bat) ; cpt ++)
+              {
+                grille_placement[lig][cpt]=cara;
+
+              }
+
+              break;
+
+      default:
+              ;
+
+
+      }
+
+
+}
+
+void placement_bateaux(t_grille & grille_placement , t_flote & flote )
+{
+
+    t_bat pa5 , cr4 , ct3 , sm3 , tr2 ;
+
+
+    aff_grille(grille_placement);
+    demender_placement(grille_placement , pa5 , 5);
+    flote[0]=pa5;
+    aff_grille(grille_placement);
+    demender_placement(grille_placement , cr4 , 4);
+    flote[1]=cr4;
+    aff_grille(grille_placement);
+    demender_placement(grille_placement , ct3 , 3);
+    flote[2]=ct3;
+    aff_grille(grille_placement);
+    demender_placement(grille_placement , sm3 , 3);
+    flote[3]=sm3;
+    aff_grille(grille_placement);
+    demender_placement(grille_placement , tr2 , 2);
+    flote[4]=tr2;
+    aff_grille(grille_placement);
+}
+
+void placement_bateaux_IA(t_grille & grille_placement , t_flote & flote)
+{
+      t_bat pa5 , cr4 , ct3 , sm3 , tr2 ;
+
+      placement_IA_facile(grille_placement , pa5 , 5);
+      flote[0]=pa5;
+      placement_IA_facile(grille_placement , cr4 , 4);
+      flote[1]=cr4;
+      placement_IA_facile(grille_placement , ct3 , 3);
+      flote[2]=ct3;
+      placement_IA_facile(grille_placement , sm3 , 3);
+      flote[3]=sm3;
+      placement_IA_facile(grille_placement , tr2 , 2);
+      flote[4]=tr2;
+}
+
+void tir( t_grille & grille_tir , t_grille & grille_placement ,bool & resultat)
+{
+    int lig ,col ;
+    char lettre_col;
+
+      aff_grille(grille_tir);
+      do{
+            do
+                {
+                cout<<"colone (lettre en majuscule):"<<endl;
+                cin>>lettre_col;
+
+                }while (lettre_col < 65 || lettre_col > 74);
+
+                col = lettre_col - 65 ;  // A = 65(ascii dec)  J= 74 (ascii dec)
+
+
+
+            do
+                {
+                cout<<"ligne (nombre de 1 a 10):"<<endl;
+                cin>>lig;
+
+                }while (lig < 1|| lig > 10 );
+
+      lig = lig - 1 ;  // A = 65(ascii dec)  J= 74 (ascii dec)
+
+
+    if(grille_tir[lig][col]== '*' || grille_tir[lig][col]=='0')
+    {
+        cout<<"vous avez deja tiré ici"<<endl;
+        cout<<"veillez retirer"<<endl;
+    }
+
+
+
+    }while( grille_tir[lig][col]== '*' || grille_tir[lig][col]=='0' );
+
+
+      if( grille_placement[lig][col]=='p'|| grille_placement[lig][col]=='c'|| grille_placement[lig][col]=='s'|| grille_placement[lig][col]=='t')
+      {
+        grille_tir[lig][col] = '*' ;
+				grille_placement[lig][col] = '*' ;
+        cout<<"touché"<<endl;
+        resultat = true ;
+      }
+      else
+      {
+        grille_tir[lig][col] = '0';
+        cout<<"raté"<<endl;
+        resultat = false ;
+      }
+}
+
+void tir_ia(t_grille & grille_tir , t_grille & grille_placement ,bool & resultat , int & alea )
+ {
+      int pourcent,i,j;
+      char symbole;
+
+      pourcent = rand() %101;
+      i=-1;
+      j=-1;
+
+      do{
+          i++;
+          j++;
+          symbole = grille_placement[i][j];
+          cout<<symbole<<endl;
+        }while( symbole == '~');
+
+      if(pourcent <= alea)
+      {
+        grille_tir[i][j] = '*' ;
+				grille_placement[i][j] = '*' ;
+        cout<<"touché"<<endl;
+        resultat = true ;
+      }
+
+      else
+      {
+        grille_tir[i][j] = '0';
+        cout<<"raté"<<endl;
+        resultat = false ;
+      }
+    }
+
+void remplirgrillesave ( t_grille & grille)
+{
+    int cptlig ,cptcol;
+    t_chaine chaine;
+
+
+
+    for(cptlig = 0 ; cptlig < MAXPLT ; cptlig++)
+    {
+
+      for(cptcol = 0  ; cptcol < MAXPLT ; cptcol++)
+        {
+          load.getline(chaine,MAXPLT);
+        grille[cptlig][cptcol]= chaine [0];
+        }
+    }
+    //aff_grille(grille);
+}
+
+bool qvide(t_grille grille)
+{
+      bool  qvide ;
+      int cptlig , cptcol;
+      char cara ;
+
+
+      cptlig = 0;
+      cptcol = 0;
+      qvide = true;
+      do{
+          do{
+            cara = grille[cptlig][cptcol];
+            cptcol++;
+          }while(cptcol<MAXPLT && cara =='~');
+
+          cptlig++;
+
+        }while(cptlig<MAXPLT && cara == '~');
+
+        if(cara != '~')
+        {
+          qvide = false ;
+        }
+
+
+    return(qvide);
+}
+
+void tour (t_chaine & joueur_1 , t_chaine &joueur_2 , t_grille& grille_placement_1, t_grille &grille_placement_2, int & jwin , char qsave )
+{
+    char c;
+    bool resultat, fin;
+    int joueur , score1 , score2 ;
+    t_grille grille_tir_1  , grille_tir_2;
+
+    if(qsave == 'n')
+    {
+        initgrille(grille_tir_1);
+        initgrille(grille_tir_2);
+    }
+    else
+    {
+        remplirgrillesave(grille_tir_1);
+        remplirgrillesave(grille_tir_2);
+    }
+
+  joueur = 1;
+  fin    = false;
+
+  do {
+
+    if(joueur== 1)
+        {
+          cout<<" Au tour de "<<joueur_1<<endl;
+          aff_grille(grille_placement_1);
+          cout<<endl<<" Grille de tir "<<endl;
+          tir(grille_tir_1 , grille_placement_2 , resultat);
+          if(resultat == true)score1++;
+          joueur++;
+          cout<<endl<<" Au tour du joueur 2 , appuyer sur c pour continuer "<< endl;
+          c=getch();
+          if(c == 'c')system("cls" );
+
+          save.close();
+          save.open("save.txt");
+          save<<"p"<<endl;
+          save<<joueur_1<<endl;
+          save<<joueur_2<<endl;
+          savegrille(grille_placement_1);
+        //  save<<joueur_1<<endl;
+          savegrille(grille_placement_2);
+          savegrille(grille_tir_1);
+          //save<<joueur_1<<endl;
+
+        //  save<<joueur_2<<endl;
+          savegrille(grille_tir_2);
+        //  save<<joueur_2<<endl;
+
+
+
+
+        }
+
+    else
+        {
+          cout<<" Au tour de "<<joueur_2 <<endl;
+          aff_grille(grille_placement_2);
+          cout<<endl<<" Grille de tir "<<endl;
+          tir(grille_tir_2 , grille_placement_1 , resultat);
+          if(resultat == true)score2++;
+          joueur--;
+          cout<<endl<<" Au tour du joueur 1 , appuyer sur c pour continuer "<< endl;
+          c=getch();
+          if(c == 'c')system("cls" );
+
+
+          save.close();
+          save.open("save.txt");
+          save<<"p"<<endl;
+          save<<joueur_1<<endl;
+          save<<joueur_2<<endl;
+          savegrille(grille_placement_1);
+        //  save<<joueur_1<<endl;
+          savegrille(grille_placement_2);
+          savegrille(grille_tir_1);
+        //  save<<joueur_1<<endl;
+
+        //  save<<joueur_2<<endl;
+          savegrille(grille_tir_2);
+        //  save<<joueur_2<<endl;
+
+
+
+
+        }
+    if(score1 == 17){jwin=1;fin=true;}
+    if(score2 == 17){jwin=2;fin=true;}
+  }while(fin != true );
+}
+
+void choix_diff (int & difficulte)
+{
+  int choix;
+  do
+    {
+				system("cls");
+        cout<<" Choisis la difficulte : "<<endl;
+        cout<<" <1>   Facile "<<endl;
+        cout<<" <2>   Moyen  "<<endl;
+        cout<<" <3>   Difficile"<<endl;
+        cout<<" <4>   Chuck Norris"<<endl;
+        cin>>choix;
+    }while(choix<0 || choix>=5);
+
+  switch(choix)
+  {
+    case 1 :
+        difficulte = 13;
+
+        break;
+    case 2 :
+        difficulte = 25;
+
+        break;
+    case 3 :
+        difficulte = 45;
+
+        break;
+    case 4 :
+        difficulte = 90;
+
+        break;
+  }
+  system("cls");
+
+}
+
+void tour_IA (t_chaine & joueur_1 , t_grille& grille_placement_1, t_grille &grille_placement_2, int & jwin, int difficulte)
+{
+  char c;
+  t_chaine joueur_2;
+  bool resultat, fin ;
+  int joueur , score1 , score2  ,cpt,nbj;
+  t_grille grille_tir_1  , grille_tir_2;
+  initgrille(grille_tir_1);
+  initgrille(grille_tir_2);
+  joueur = 1;
+  fin    = false;
+
+  for(cpt = 0 ; cpt < MAXCH; cpt++)
+    {
+      joueur_2[cpt]='o';
+    }
+
+    nom_joueur(joueur_1,nbj);
+
+
+
+  do {
+
+    if(joueur== 1)
+        {
+
+          cout<<" Au tour de "<<joueur_1<<endl;
+          aff_grille(grille_placement_1);
+          cout<<endl<<" Grille de tir "<<endl;
+          tir(grille_tir_1 , grille_placement_2 , resultat);
+          if(resultat == true)score1++;
+          joueur++;
+          cout<<endl<<" Au tour de l'ordinateur , appuyer sur une touche pour continuer "<< endl;
+          c= getch();
+          system("cls" );
+
+          save.close();
+          save.open("save.txt");
+          save<<"o"<<difficulte<<endl;
+          save<<joueur_1<<endl;
+          save<<joueur_2<<endl;
+          savegrille(grille_tir_1);
+        //  save<<joueur_1<<endl;
+          savegrille(grille_placement_1);
+        //  save<<joueur_1<<endl;
+          savegrille(grille_tir_2);
+        //  save<<joueur_2<<endl;
+          savegrille(grille_placement_2);
+        //  save<<joueur_2<<endl;
+
+        }
+
+    else
+        {
+          tir_ia(grille_tir_2 , grille_placement_1 ,resultat, difficulte);
+          if(resultat == true)
+            score2++;
+            joueur--;
+
+
+            save.close();
+            save.open("save.txt");
+            save<<"o"<<difficulte<<endl;
+            save<<joueur_1<<endl;
+            save<<joueur_2<<endl;
+            savegrille(grille_tir_1);
+            //save<<joueur_1<<endl;
+            savegrille(grille_placement_1);
+            //save<<joueur_1<<endl;
+            savegrille(grille_tir_2);
+            //save<<joueur_2<<endl;
+            savegrille(grille_placement_2);
+            //save<<joueur_2<<endl;
+
+
+        }
+    if(score1 == 17){jwin=1;fin=true;}
+    if(score2 == 17){jwin=2;fin=true;}
+  }while(fin != true );
+}
+
+void placement_multi(t_mer & mer_placement , int nbj)
+{
+    int cptj;
+    t_grille grille ;
+    t_flote flote;
+
+    cptj = 0 ;
+
+
+
+    do{
+
+       cptj++;
+       cout<<"au joueur"<<cptj<<endl;
+        sortirtab(mer_placement , grille,cptj);
+        placement_bateaux(grille,flote);
+        archivertab(mer_placement , grille ,cptj);
+
+
+        }while(cptj< nbj);
+
+}
+
+void initmer(t_mer mer)
+{
+    int cpt ;
+
+    for(cpt = 0 ; cpt < MAXJOUEUR ; cpt ++)
+    {
+        initgrille(mer[cpt]);
+    }
+}
+
+void initvie(t_vie & vie)
+{
+  int cpt;
+
+
+
+    for(cpt = 0 ; cpt < MAXJOUEUR ; cpt ++)
+    {
+      vie[cpt]= 17 ;
+    }
+
+}
+
+void tirmulti (t_mer & mer_tir, t_mer & mer_pl ,int & cible , int n0joueur ,int nb_joueurs)
+{
+   int   var;
+   //char col_lettre ;
+   bool resultat ;
+
+   t_grille grilleplcible , grilletircible;
+
+    do{
+        cout<<"au tour de joueur"<<n0joueur<<endl;
+        cout<< " quel joueur voulez vous attaquer ? (chiffre)"<<endl;
+        cin>>cible;
+      }while(cible < 0 || cible > nb_joueurs ||cible == n0joueur);
+
+        var=cible - 1 ;
+        sortirtab(mer_pl , grilleplcible , var) ;
+        sortirtab(mer_tir, grilletircible , var) ;
+
+
+  tir(grilletircible , grilleplcible , resultat);
+
+    archivertab(mer_tir , grilletircible , var);
+    archivertab(mer_pl , grilleplcible , var);
+
+    cible = cible -1 ;
+ }
+
+void tour_multi(t_mer & mer_tir ,t_mer & mer_placement , int & jout , int  nb_joueurs)
+{
+
+    int tour , cible; // numeros du joueur qui doit joueur
+    t_vie vie;
+
+
+
+    tour = 0 ;
+
+    do{
+
+      tour++;
+      if(vie[tour-1]>0)
+        {
+            tirmulti(mer_tir,mer_placement,cible,tour,nb_joueurs);
+            vie[cible] = vie[cible] - 1;
+            if(vie[cible] == 0)
+                {
+                jout = cible + 1 ;
+                }
+        }
+
+
+
+
+    }while( tour>=nb_joueurs || jout==0 );
+
+
+
+
+  }
+
+void partiemulti(t_mer & mer_tir , t_mer & mer_placement ,int nbj)
+{
+      int jout ;
+
+
+
+      do{
+           do{
+
+              tour_multi(mer_tir , mer_placement , jout , nbj );
+
+
+          }while(jout == 0);
+          nbj--;
+          cout<<"le joueur"<<jout<<" est eliminé"<<endl;
+
+      }while (nbj>1);
+
+
+
+    }
+
+
+void case_p(t_chaine & joueur_1 , t_chaine & joueur_2 , int & nbj , t_grille & grille_placement_1 , t_grille & grille_placement_2 ,int & jwin ,t_flote & flote_1 , t_flote & flote_2 , char qsave )
+{
+  char p ;
+  t_chaine buffer ;
+
+  if(qsave == 'n')
+    {
+     nom_joueur(joueur_1,nbj);
+     nom_joueur(joueur_2,nbj);
+    }
+    else
+    {
+
+        load.getline(buffer,MAXCH);
+        load.getline(joueur_1,MAXCH);
+        cout<<"j1 : "<<joueur_1<<endl;
+        load.getline(joueur_2,MAXCH);
+        cout<<"j2 : "<<joueur_2<<endl;
+    }
+
+  //system("cls" );
+
+  if(qsave == 'o')
+  {
+    if(qvide(grille_placement_1))
+    {
+      cout<<" Placement des bateaux de "<<joueur_1<<endl;
+      initgrille(grille_placement_1);
+      cout<<"Souhaitez vous placer vos bateaux automatiquemment ?  "<<endl<<"             <o> pour oui        <n> pour non  "<<endl;
+      cin>>p;
+      switch(p)
+        {
+          case 'o':placement_bateaux_IA(grille_placement_1 , flote_1);break;
+          case 'n':placement_bateaux(grille_placement_1,flote_1);break;
+        }
+
+      }
+      else
+      {
+        remplirgrillesave(grille_placement_1);
+
+      }
+
+      //system("cls" );
+
+      if (qvide(grille_placement_2))
+      {
+        cout<<endl<<endl<<" Au joueur 2 de placer ces bateaux ! "<<endl;
+        initgrille(grille_placement_2);
+        cout<<"Souhaitez vous placer vos bateaux automatiquemment ?  "<<endl<<"             <o> pour oui        <n> pour non  "<<endl;
+        cin>>p;
+        switch(p)
+        {
+          case 'o':placement_bateaux_IA(grille_placement_2 , flote_2);break;
+          case 'n':placement_bateaux(grille_placement_2,flote_2);break;
+        }
+        cout<<endl<<endl;
+      }
+      else
+      {
+          remplirgrillesave(grille_placement_2);
+      }
+    }
+    else
+    {
+        cout<<" Placement des bateaux de "<<joueur_1<<endl;
+        initgrille(grille_placement_1);
+        cout<<"Souhaitez vous placer vos bateaux automatiquemment ?  "<<endl<<"             <o> pour oui        <n> pour non  "<<endl;
+        cin>>p;
+        switch(p)
+        {
+          case 'o':placement_bateaux_IA(grille_placement_1 , flote_1);break;
+          case 'n':placement_bateaux(grille_placement_1,flote_1);break;
+        }
+        //system("cls" );
+        cout<<endl<<endl<<" Au joueur 2 de placer ces bateaux ! "<<endl;
+        initgrille(grille_placement_2);
+        cout<<"Souhaitez vous placer vos bateaux automatiquemment ?  "<<endl<<"             <o> pour oui        <n> pour non  "<<endl;
+        cin>>p;
+        switch(p)
+        {
+          case 'o':placement_bateaux_IA(grille_placement_2 , flote_2);break;
+          case 'n':placement_bateaux(grille_placement_2,flote_2);break;
+        }
+        cout<<endl<<endl;
+        tour(joueur_1 , joueur_2 , grille_placement_1,grille_placement_2, jwin , qsave);
+        if(jwin== 1){cout<<" "<<joueur_1<<" a gagne !! "<<endl;}
+        if(jwin== 2){cout<<" "<<joueur_2<<" a gagne !! "<<endl;}
+    }
+
+
+
+
+    tour(joueur_1 , joueur_2 , grille_placement_1,grille_placement_2, jwin , qsave);
+    if(jwin== 1){cout<<" "<<joueur_1<<" a gagne !! "<<endl;}
+    if(jwin== 2){cout<<" "<<joueur_2<<" a gagne !! "<<endl;}
+}
+
+void case_o(int & difficulte,t_chaine & joueur_1, int & nbj , t_grille & grille_placement_1 , t_grille & grille_placement_2 , t_flote & flote_1 , t_flote & flote_2 , int & jwin )
+{
+  choix_diff(difficulte);
+  nom_joueur(joueur_1,nbj);
+
+  system("cls" );
+  initgrille(grille_placement_2);
+  placement_bateaux_IA(grille_placement_2,flote_2);
+  cout<<" Placement des bateaux de "<<joueur_1<<endl;
+  initgrille(grille_placement_1);
+  placement_bateaux(grille_placement_1,flote_1);
+  system("cls" );
+  aff_grille(grille_placement_2);
+  tour_IA(joueur_1 , grille_placement_1,grille_placement_2, jwin , difficulte);
+  if(jwin== 1){cout<<" "<<joueur_1<<" a gagne !! "<<endl;}
+  if(jwin== 2){cout<<" YOU LOOSE !!! "<<endl;}
+
+
+}
+
+void case_m(t_mer & mer_tir , t_mer & mer_placement )
+{
+  int cbj;
+  initmer(mer_tir);
+  initmer(mer_placement);
+  cout<<"combien de joueurs ?"<<endl;
+  cin>>cbj;
+
+  placement_multi(mer_placement , cbj);
+  partiemulti(mer_tir , mer_placement ,cbj);
+}
+
+char chargement()
+{
+    char qcharg;
+
+  do{
+    cout<<"reprendre la partie precedente ?"<<endl;
+    cout<<" <o> oui"<<endl;
+    cout<<" <n> non"<<endl;
+    cin>>qcharg;
+
+
+  }while(qcharg != 'o' && qcharg != 'n');
+
+  if(qcharg == 'o')
+    {
+        load.open("save.txt");
+        cout<<"load open"<<endl;
+    }
+    else
+      {
+        save.open("save.txt");
+      }
+return(qcharg);
+}
+
+void fermeture(char & chargement)
+{
+
+  if(chargement == 'o')
+  {
+    load.close();
+  }
+  else
+  {
+    save.close();
+  }
+}
+
+
+
+// ========================== Programme principal =========================== //
+int main(void)
+{
+char choix,q,sauvegarde;
+//t_chaine chaine;
+t_chaine joueur_1;
+t_chaine joueur_2;
+t_grille grille_placement_1;
+t_grille grille_placement_2;
+t_flote flote_1;
+t_flote flote_2;
+t_mer mer_placement , mer_tir ;
+int jwin,nbj ,difficulte;
+nbj=1;
+   // Actions
+
+Color(0,15);
+srand(time(0));
+
+do{
+  sauvegarde = chargement();
+
+  if(sauvegarde == 'n')
+    {
+      choix= menu();
+    }
+    else
+    {
+        choix = load.get() ;
+        cout<<choix<<endl;
+        //cout<<sauvegarde<<endl;
+    }
+
+  switch (choix)
+  {
+    case'p':
+
+        case_p(joueur_1 , joueur_2 , nbj , grille_placement_1 ,grille_placement_2 ,jwin ,flote_1 ,flote_2 , sauvegarde);
+      break;
+
+    case'o':
+
+      case_o(difficulte , joueur_1, nbj ,  grille_placement_1 , grille_placement_2 ,flote_1 , flote_2 ,jwin);
+      break;
+
+  case'm' :
+
+      case_m(mer_tir ,mer_placement );
+      break;
+  }
+
+    fermeture(sauvegarde);
+
+    cout<<" Voulez vous rejouer ? Si non , tapez q"<<endl;
+    cin>>q;
+}while(q != 'q');
+
+   setlocale(LC_ALL, "french");
+cout<<"FIN DE CHANTIER"<<endl;
+   // retour au syst�me d'exploitattion
+   return 0;
+}
